@@ -873,11 +873,9 @@
           maskCanvas.height = height;
           const maskCtx = maskCanvas.getContext("2d");
 
-          maskCtx.fillStyle = "white";
+          maskCtx.fillStyle = "white"; 
           maskCtx.fillRect(0, 0, width, height);
-
-          maskCtx.fillStyle = "black";
-
+          
           const maskWidth = 20;
           const maskStart = 15;
 
@@ -885,7 +883,7 @@
             for (let i = 0; i < cols; i++) {
               const px = pixelOffset + i * 50 + maskStart;
               const py = pixelOffset + j * 50 + maskStart;
-              maskCtx.fillRect(px, py, maskWidth, maskWidth);
+              maskCtx.clearRect(px, py, maskWidth, maskWidth); 
             }
           }
           const maskImageData = maskCtx.getImageData(0, 0, width, height);
