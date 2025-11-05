@@ -564,8 +564,6 @@
     const runTestsText = document.getElementById("run-tests-text");
     let isTestRunning = false;
 
-    const ALLOWED_DIFF_PERCENTAGE = 0.001;
-
     const aceEditor = ace.edit("template-editor");
     aceEditor.setTheme("ace/theme/github");
     aceEditor.session.setMode("ace/mode/html");
@@ -805,7 +803,6 @@
     }
 
     async function runAllTests() {
-      clearStatuses();
       let passedCount = 0;
       let failedCount = 0;
       testResults.textContent = `Выполнение ${testCases.length} тестов... ⏳`;
@@ -841,6 +838,7 @@
         try {
           const etalonImg = await getImageDataFromSrc(etalonSrc);
           const currentImg = await getImageDataFromSrc(currentImageDataUrl);
+
           if (
             etalonImg.width !== currentImg.width ||
             etalonImg.height !== currentImg.height
@@ -850,32 +848,56 @@
             failedCount++;
             continue;
           }
-          const width = etalonImg.width; const height = etalonImg.height;
+
+          const width = etalonImg.width;
+          const height = etalonImg.height;
           const diffCanvas = document.createElement("canvas");
           diffCanvas.width = width; diffCanvas.height = height;
           const diffCtx = diffCanvas.getContext("2d");
           const diffImageData = diffCtx.createImageData(width, height);
 
+          const expectedSizeNoBorder = (cols + 1) * 50;
+          let pixelOffset = (width === expectedSizeNoBorder) ? 0 : 1;
+
+          const maskCanvas = document.createElement("canvas");
+          maskCanvas.width = width;
+          maskCanvas.height = height;
+          const maskCtx = maskCanvas.getContext("2d");
+
+          maskCtx.fillStyle = "white";
+          maskCtx.fillRect(0, 0, width, height);
+
+          maskCtx.fillStyle = "black";
+          const scanStart = 17;
+          const scanWidth = 16;
+          for (let j = 0; j < rows; j++) {
+            for (let i = 0; i < cols; i++) {
+              const px = pixelOffset + i * 50 + scanStart;
+              const py = pixelOffset + j * 50 + scanStart;
+              maskCtx.fillRect(px, py, scanWidth, scanWidth);
+            }
+          }
+
+          const maskImageData = maskCtx.getImageData(0, 0, width, height);
+
           const numDiffPixels = pixelmatch(
             etalonImg.data.data, currentImg.data.data,
             diffImageData.data, width, height,
             {
-              threshold: 0.2,
-              includeAA: true
+              threshold: 0.1,
+              includeAA: true,
+              diffMask: maskImageData.data
             }
           );
 
-          const totalPixels = width * height;
-          const allowedDiffPixels = totalPixels * ALLOWED_DIFF_PERCENTAGE;
-
-          if (numDiffPixels < allowedDiffPixels) {
+          if (numDiffPixels === 0) {
             imgElement.classList.replace("test-pending", "test-pass");
             passedCount++;
           } else {
             imgElement.classList.replace("test-pending", "test-fail");
             failedCount++;
 
-            console.log(`Тест ${testCase.name} УПАЛ: ${numDiffPixels} пикс. отличий (допустимо ${allowedDiffPixels.toFixed(0)})`);
+            console.log(`Тест ${testCase.name} УПАЛ: ${numDiffPixels} пикс. отличий (в НЕ-маскированных областях)`);
 
             diffCtx.putImageData(diffImageData, 0, 0);
             diffImgElement.src = diffCanvas.toDataURL();
@@ -896,7 +918,6 @@
       isTestRunning = false;
       runTestsButton.classList.remove("running");
       runTestsText.textContent = "Запуск тестов";
-      clearField();
     }
 
     runTestsButton.addEventListener("click", () => {
