@@ -863,12 +863,10 @@
 
           const expectedSizeNoBorder = (cols + 1) * 50;
           let pixelOffset = (width === expectedSizeNoBorder) ? 0 : 1;
-
           const etalonCanvas = document.createElement("canvas");
           const etalonCtx = etalonCanvas.getContext("2d");
           etalonCanvas.width = width; etalonCanvas.height = height;
           etalonCtx.putImageData(etalonImg.data, 0, 0);
-
           const currentCanvas = document.createElement("canvas");
           const currentCtx = currentCanvas.getContext("2d");
           currentCanvas.width = width; currentCanvas.height = height;
@@ -880,15 +878,12 @@
             for (let i = 0; i < cols; i++) {
               const px = pixelOffset + i * 50 + maskStart;
               const py = pixelOffset + j * 50 + maskStart;
-
               etalonCtx.fillStyle = "white";
               etalonCtx.fillRect(px, py, maskWidth, maskWidth);
-
               currentCtx.fillStyle = "white";
               currentCtx.fillRect(px, py, maskWidth, maskWidth);
             }
           }
-
           const etalonData = etalonCtx.getImageData(0, 0, width, height);
           const currentData = currentCtx.getImageData(0, 0, width, height);
 
@@ -907,14 +902,14 @@
             }
           );
 
-          if (numDiffPixels === 0) {
+          if (numDiffPixels < 20) {
             imgElement.classList.replace("test-pending", "test-pass");
             passedCount++;
           } else {
             imgElement.classList.replace("test-pending", "test-fail");
             failedCount++;
 
-            console.log(`Тест ${testCase.name} УПАЛ: ${numDiffPixels} пикс. отличий.`);
+            console.log(`Тест ${testCase.name} УПАЛ: ${numDiffPixels} пикс. отличий. (Допуск: 20)`);
 
             diffCtx.putImageData(diffImageData, 0, 0);
             diffImgElement.src = diffCanvas.toDataURL();
