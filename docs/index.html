@@ -781,7 +781,8 @@
                 <img id="${testCase.id}" src="${testCase.etalonImageSrc}" alt="${testCase.name}">
                 <span>${testCase.name}</span>
                 <img id="diff-${testCase.id}" class="diff-image" alt="Diff" style="display: none;">
-                </div>
+                <img id="mask-${testCase.id}" class="mask-image" alt="Mask" style="display: none;">
+              </div>
             `;
         });
         testGallery.innerHTML = galleryHTML;
