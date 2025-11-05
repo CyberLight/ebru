@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Marching squares v3</title>
+  <title>Marching squares v4</title>
   <script src="./scripts/html2canvas.min.js"></script>
   <script type="module">
     import pixelmatch from './scripts/pixelmatch.esm.js';
@@ -860,40 +860,50 @@
 
           const width = etalonImg.width;
           const height = etalonImg.height;
-          const diffCanvas = document.createElement("canvas");
-          diffCanvas.width = width; diffCanvas.height = height;
-          const diffCtx = diffCanvas.getContext("2d");
-          const diffImageData = diffCtx.createImageData(width, height);
 
           const expectedSizeNoBorder = (cols + 1) * 50;
           let pixelOffset = (width === expectedSizeNoBorder) ? 0 : 1;
 
-          const maskCanvas = document.createElement("canvas");
-          maskCanvas.width = width;
-          maskCanvas.height = height;
-          const maskCtx = maskCanvas.getContext("2d");
+          const etalonCanvas = document.createElement("canvas");
+          const etalonCtx = etalonCanvas.getContext("2d");
+          etalonCanvas.width = width; etalonCanvas.height = height;
+          etalonCtx.putImageData(etalonImg.data, 0, 0);
 
-          maskCtx.fillStyle = "white";
-          maskCtx.fillRect(0, 0, width, height);
-
-          const maskWidth = 20;
-          const maskStart = 15;
+          const currentCanvas = document.createElement("canvas");
+          const currentCtx = currentCanvas.getContext("2d");
+          currentCanvas.width = width; currentCanvas.height = height;
+          currentCtx.putImageData(currentImg.data, 0, 0);
+          const maskWidth = 30;
+          const maskStart = 10;
 
           for (let j = 0; j < rows; j++) {
             for (let i = 0; i < cols; i++) {
               const px = pixelOffset + i * 50 + maskStart;
               const py = pixelOffset + j * 50 + maskStart;
-              maskCtx.clearRect(px, py, maskWidth, maskWidth);
+
+              etalonCtx.fillStyle = "white";
+              etalonCtx.fillRect(px, py, maskWidth, maskWidth);
+
+              currentCtx.fillStyle = "white";
+              currentCtx.fillRect(px, py, maskWidth, maskWidth);
             }
           }
-          const maskImageData = maskCtx.getImageData(0, 0, width, height);
+
+          const etalonData = etalonCtx.getImageData(0, 0, width, height);
+          const currentData = currentCtx.getImageData(0, 0, width, height);
+
+          const diffCanvas = document.createElement("canvas");
+          diffCanvas.width = width; diffCanvas.height = height;
+          const diffCtx = diffCanvas.getContext("2d");
+          const diffImageData = diffCtx.createImageData(width, height);
 
           const numDiffPixels = pixelmatch(
-            etalonImg.data.data, currentImg.data.data,
-            diffImageData.data, width, height,
+            etalonData.data,
+            currentData.data,
+            diffImageData.data,
+            width, height,
             {
-              threshold: 0.2,
-              diffMask: maskImageData.data
+              threshold: 0.1,
             }
           );
 
@@ -909,7 +919,7 @@
             diffCtx.putImageData(diffImageData, 0, 0);
             diffImgElement.src = diffCanvas.toDataURL();
             diffImgElement.style.display = "block";
-            maskImgElement.src = maskCanvas.toDataURL();
+            maskImgElement.src = currentCanvas.toDataURL();
             maskImgElement.style.display = "block";
           }
         } catch (error) {
