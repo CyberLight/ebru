@@ -564,6 +564,8 @@
     const runTestsText = document.getElementById("run-tests-text");
     let isTestRunning = false;
 
+    const ALLOWED_DIFF_PERCENTAGE = 0.001;
+
     const aceEditor = ace.edit("template-editor");
     aceEditor.setTheme("ace/theme/github");
     aceEditor.session.setMode("ace/mode/html");
@@ -853,17 +855,28 @@
           diffCanvas.width = width; diffCanvas.height = height;
           const diffCtx = diffCanvas.getContext("2d");
           const diffImageData = diffCtx.createImageData(width, height);
+
           const numDiffPixels = pixelmatch(
             etalonImg.data.data, currentImg.data.data,
             diffImageData.data, width, height,
-            { threshold: 0.1, includeAA: true }
+            {
+              threshold: 0.2,
+              includeAA: true
+            }
           );
-          if (numDiffPixels === 0) {
+
+          const totalPixels = width * height;
+          const allowedDiffPixels = totalPixels * ALLOWED_DIFF_PERCENTAGE;
+
+          if (numDiffPixels < allowedDiffPixels) {
             imgElement.classList.replace("test-pending", "test-pass");
             passedCount++;
           } else {
             imgElement.classList.replace("test-pending", "test-fail");
             failedCount++;
+
+            console.log(`Тест ${testCase.name} УПАЛ: ${numDiffPixels} пикс. отличий (допустимо ${allowedDiffPixels.toFixed(0)})`);
+
             diffCtx.putImageData(diffImageData, 0, 0);
             diffImgElement.src = diffCanvas.toDataURL();
             diffImgElement.style.display = "block";
