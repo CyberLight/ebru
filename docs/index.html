@@ -777,13 +777,12 @@
         }
         testCases.forEach((testCase) => {
           galleryHTML += `
-            <div class="test-case-container">
-              <img id="${testCase.id}" src="${testCase.etalonImageSrc}" alt="${testCase.name}">
-              <span>${testCase.name}</span>
-              <img id="diff-${testCase.id}" class="diff-image" alt="Diff" style="display: none;">
-              <img id="mask-${testCase.id}" class="mask-image" alt="Mask" style="display: none;">
-            </div>
-          `;
+              <div class="test-case-container">
+                <img id="${testCase.id}" src="${testCase.etalonImageSrc}" alt="${testCase.name}">
+                <span>${testCase.name}</span>
+                <img id="diff-${testCase.id}" class="diff-image" alt="Diff" style="display: none;">
+                </div>
+            `;
         });
         testGallery.innerHTML = galleryHTML;
         testResults.textContent = `📊 ${testCases.length} ${testCases.length === 1 ? 'тест' : 'тестов'
@@ -819,16 +818,13 @@
 
         const imgElement = document.getElementById(testCase.id);
         const diffImgElement = document.getElementById(`diff-${testCase.id}`);
-        const maskImgElement = document.getElementById(`mask-${testCase.id}`);
 
-        if (!imgElement || !diffImgElement || !maskImgElement) continue;
+        if (!imgElement || !diffImgElement) continue;
 
         imgElement.classList.remove("test-pass", "test-fail");
         imgElement.classList.add("test-pending");
         diffImgElement.style.display = "none";
         diffImgElement.src = "";
-        maskImgElement.style.display = "none";
-        maskImgElement.src = "";
 
         imgElement.scrollIntoView({
           behavior: "smooth", block: "nearest", inline: "center",
@@ -860,51 +856,16 @@
 
           const width = etalonImg.width;
           const height = etalonImg.height;
-
-          const expectedSizeNoBorder = (cols + 1) * 50;
-          let pixelOffset = (width === expectedSizeNoBorder) ? 0 : 1;
-          const maskWidth = 20;
-          const maskStart = 15;
-
-          const etalonCanvas = document.createElement("canvas");
-          const etalonCtx = etalonCanvas.getContext("2d");
-          etalonCanvas.width = width; etalonCanvas.height = height;
-          etalonCtx.putImageData(etalonImg.data, 0, 0);
-
-          const currentCanvas = document.createElement("canvas");
-          const currentCtx = currentCanvas.getContext("2d");
-          currentCanvas.width = width; currentCanvas.height = height;
-          currentCtx.putImageData(currentImg.data, 0, 0);
-
-          for (let j = 0; j < rows; j++) {
-            for (let i = 0; i < cols; i++) {
-              const px = pixelOffset + i * 50 + maskStart;
-              const py = pixelOffset + j * 50 + maskStart;
-
-              etalonCtx.fillStyle = "white";
-              etalonCtx.fillRect(px, py, maskWidth, maskWidth);
-
-              currentCtx.fillStyle = "white";
-              currentCtx.fillRect(px, py, maskWidth, maskWidth);
-            }
-          }
-
-          const etalonData = etalonCtx.getImageData(0, 0, width, height);
-          const currentData = currentCtx.getImageData(0, 0, width, height);
-
           const diffCanvas = document.createElement("canvas");
           diffCanvas.width = width; diffCanvas.height = height;
           const diffCtx = diffCanvas.getContext("2d");
           const diffImageData = diffCtx.createImageData(width, height);
 
           const numDiffPixels = pixelmatch(
-            etalonData.data,
-            currentData.data,
-            diffImageData.data,
-            width, height,
+            etalonImg.data.data, currentImg.data.data,
+            diffImageData.data, width, height,
             {
-              threshold: 0.1,
-              includeAA: true,
+              threshold: 0.2,
             }
           );
 
@@ -920,11 +881,7 @@
             diffCtx.putImageData(diffImageData, 0, 0);
             diffImgElement.src = diffCanvas.toDataURL();
             diffImgElement.style.display = "block";
-
-            maskImgElement.src = currentCanvas.toDataURL();
-            maskImgElement.style.display = "block";
           }
-
         } catch (error) {
           console.error("Ошибка при генерации diff-изображения:", error);
           imgElement.classList.replace("test-pending", "test-fail");
@@ -1047,13 +1004,12 @@
         };
         testCases.push(newTestCase);
         const newImageHTML = `
-          <div class="test-case-container">
-            <img id="${newTestCase.id}" src="${newTestCase.etalonImageSrc}" alt="${newTestCase.name}">
-            <span>${newTestCase.name}</span>
-            <img id="diff-${newTestCase.id}" class="diff-image" alt="Diff" style="display: none;">
-            <img id="mask-${newTestCase.id}" class="mask-image" alt="Mask" style="display: none;">
-          </div>
-        `;
+            <div class="test-case-container">
+              <img id="${newTestCase.id}" src="${newTestCase.etalonImageSrc}" alt="${newTestCase.name}">
+              <span>${newTestCase.name}</span>
+              <img id="diff-${newTestCase.id}" class="diff-image" alt="Diff" style="display: none;">
+              </div>
+          `;
         testGallery.insertAdjacentHTML("beforeend", newImageHTML);
         testResults.textContent = `📊 ${testCases.length} ${testCases.length === 1 ? 'тест' : 'тестов'
           } загружено. Готово к запуску.`;
