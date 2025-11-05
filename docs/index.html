@@ -818,13 +818,16 @@
 
         const imgElement = document.getElementById(testCase.id);
         const diffImgElement = document.getElementById(`diff-${testCase.id}`);
+        const maskImgElement = document.getElementById(`mask-${testCase.id}`);
 
-        if (!imgElement || !diffImgElement) continue;
+        if (!imgElement || !diffImgElement || !maskImgElement) continue;
 
         imgElement.classList.remove("test-pass", "test-fail");
         imgElement.classList.add("test-pending");
         diffImgElement.style.display = "none";
         diffImgElement.src = "";
+        maskImgElement.style.display = "none";
+        maskImgElement.src = "";
 
         imgElement.scrollIntoView({
           behavior: "smooth", block: "nearest", inline: "center",
@@ -861,11 +864,35 @@
           const diffCtx = diffCanvas.getContext("2d");
           const diffImageData = diffCtx.createImageData(width, height);
 
+          const expectedSizeNoBorder = (cols + 1) * 50;
+          let pixelOffset = (width === expectedSizeNoBorder) ? 0 : 1;
+
+          const maskCanvas = document.createElement("canvas");
+          maskCanvas.width = width;
+          maskCanvas.height = height;
+          const maskCtx = maskCanvas.getContext("2d");
+
+          maskCtx.fillStyle = "white";
+          maskCtx.fillRect(0, 0, width, height);
+
+          const maskWidth = 20;
+          const maskStart = 15;
+
+          for (let j = 0; j < rows; j++) {
+            for (let i = 0; i < cols; i++) {
+              const px = pixelOffset + i * 50 + maskStart;
+              const py = pixelOffset + j * 50 + maskStart;
+              maskCtx.clearRect(px, py, maskWidth, maskWidth);
+            }
+          }
+          const maskImageData = maskCtx.getImageData(0, 0, width, height);
+
           const numDiffPixels = pixelmatch(
             etalonImg.data.data, currentImg.data.data,
             diffImageData.data, width, height,
             {
               threshold: 0.2,
+              diffMask: maskImageData.data
             }
           );
 
@@ -881,6 +908,8 @@
             diffCtx.putImageData(diffImageData, 0, 0);
             diffImgElement.src = diffCanvas.toDataURL();
             diffImgElement.style.display = "block";
+            maskImgElement.src = maskCanvas.toDataURL();
+            maskImgElement.style.display = "block";
           }
         } catch (error) {
           console.error("Ошибка при генерации diff-изображения:", error);
