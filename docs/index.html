@@ -868,13 +868,14 @@
           maskCtx.fillRect(0, 0, width, height);
 
           maskCtx.fillStyle = "black";
-          const scanStart = 17;
-          const scanWidth = 16;
+          const maskWidth = 20;
+          const maskStart = 15;
+
           for (let j = 0; j < rows; j++) {
             for (let i = 0; i < cols; i++) {
-              const px = pixelOffset + i * 50 + scanStart;
-              const py = pixelOffset + j * 50 + scanStart;
-              maskCtx.fillRect(px, py, scanWidth, scanWidth);
+              const px = pixelOffset + i * 50 + maskStart;
+              const py = pixelOffset + j * 50 + maskStart;
+              maskCtx.fillRect(px, py, maskWidth, maskWidth);
             }
           }
 
