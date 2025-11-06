@@ -21,7 +21,7 @@
       background: white;
       border: 1px solid #e0e0e0;
       border-radius: 8px;
-      padding: 10px 24px;
+      padding: 10px 14px;
       font-size: 14px;
       font-weight: 500;
       color: #333;
@@ -35,14 +35,18 @@
       gap: 8px;
     }
 
-    button:hover {
+    button:not(:disabled):hover,
+    button:not([disabled]):hover 
+    {
       background: #fafafa;
       border-color: #d0d0d0;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       transform: translateY(-1px);
     }
 
-    button:active {
+    button:not(:disabled):active,
+    button:not([disabled]):active 
+    {
       background: #f5f5f5;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       transform: translateY(0);
@@ -57,7 +61,9 @@
       background-color: #f0f0f0;
     }
 
-    button.upload-btn:hover {
+    button.upload-btn:not(:disabled):hover,
+    button.upload-btn:not([disabled]):hover 
+    {
       background-color: #e0e0e0;
     }
 
@@ -65,7 +71,19 @@
       background-color: #f0f4f8;
     }
 
-    button.editor-btn:hover {
+    button.editor-btn:not(:disabled):hover,
+    button.editor-btn:not([disabled]):hover 
+    {
+      background-color: #e0e8f0;
+    }
+
+    button.clear-field-btn {
+      background-color: #f0f4f8;
+    }
+
+    button.clear-field-btn:not(:disabled):hover,
+    button.clear-field-btn:not([disabled]):hover 
+    {
       background-color: #e0e8f0;
     }
 
@@ -367,6 +385,21 @@
       width: 16px;
       height: 16px;
     }
+
+    button:disabled > .svg-icon-16x16,
+    button[disabled] > .svg-icon-16x16 {
+      color: #a0a0a0;
+    }
+
+    .button:disabled,
+    button[disabled] {
+      background-color: #e0e0e0;
+      color: #a0a0a0;
+      opacity: 0.7;
+      cursor: not-allowed;
+      box-shadow: none;
+      border-color: #d0d0d0;
+    }
   </style>
 </head>
 
@@ -565,7 +598,11 @@
               d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
           </svg>
         </span>
-        Скриншот поля</button>
+        Скриншот поля
+      </button>
+      <button id="clear-field" class="clear-field-btn">
+        Очистить поле
+      </button>
       <button id="open-template-editor" class="editor-btn">
         <span class="svg-icon-16x16">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -624,6 +661,7 @@
     const applyTemplateButton = document.getElementById("apply-template");
     const cancelTemplateEditButton = document.getElementById("cancel-template-edit");
     const openTemplateEditorButton = document.getElementById("open-template-editor");
+    const clearFieldButton = document.getElementById("clear-field");
 
     const runTestsText = document.getElementById("run-tests-text");
     let isTestRunning = false;
@@ -697,6 +735,13 @@
       buildGrid();
       initializeTestGallery();
       closeModal();
+    });
+
+    clearFieldButton.addEventListener("click", () => {
+      if (!isTestRunning) {
+        clearAllCheckboxes();
+        updateAllTiles();
+      }
     });
 
     function getCell(col, row) {
@@ -995,6 +1040,7 @@
       isTestRunning = false;
       runTestsButton.classList.remove("running");
       runTestsText.textContent = "Запуск тестов";
+      setToolButtonsDisabled(false);
     }
 
     runTestsButton.addEventListener("click", () => {
@@ -1002,6 +1048,7 @@
         isTestRunning = false;
         runTestsButton.classList.remove("running");
         runTestsText.textContent = "Запуск тестов";
+        setToolButtonsDisabled(false);
       } else {
         if (sizeSlider.value !== "50") {
           alert(
@@ -1013,6 +1060,7 @@
         clearStatuses();
 
         isTestRunning = true;
+        setToolButtonsDisabled(true);
         runTestsButton.classList.add("running");
         runTestsText.textContent = "Стоп";
         runAllTests();
@@ -1172,6 +1220,22 @@
         await loadImageTestToField(e.target.src);
       }
     });
+
+    function setToolButtonsDisabled(disabled) {
+      const buttons = [
+        randomizeButton,
+        screenshotButton,
+        openTemplateEditorButton,
+        clearFieldButton,
+        uploadTestButton
+      ];
+
+      if (disabled) {
+        buttons.forEach((el) => el.setAttribute('disabled', ''));
+      } else {
+        buttons.forEach((el) => el.removeAttribute('disabled'));
+      }
+    }
 
     function clearField() {
       clearAllCheckboxes();
