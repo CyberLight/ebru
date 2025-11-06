@@ -282,7 +282,9 @@
       display: none;
     }
 
-    .test-results {
+    .test-results, 
+    .test-tools 
+    {
       margin-top: -10px;
       padding: 10px 15px;
       font-size: 16px;
@@ -292,6 +294,12 @@
       border: 1px solid #e0e0e0;
       width: 100%;
       box-sizing: border-box;
+    }
+
+    .test-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     #modal-overlay {
@@ -351,6 +359,13 @@
       display: flex;
       justify-content: flex-end;
       gap: 10px;
+    }
+
+    .svg-icon-16x16 {
+      color: black;
+      display: inline-block;
+      width: 16px;
+      height: 16px;
     }
   </style>
 </head>
@@ -510,21 +525,15 @@
     </template>
 
     <div class="controls">
-      <button id="randomize">Рандом</button>
       <div class="slider-container">
         <label for="size-slider">Размер:</label>
         <input type="range" id="size-slider" min="50" max="200" value="50" />
       </div>
-      <button id="screenshot">Скриншот поля</button>
 
       <button id="run-tests">
         <span id="run-tests-icon"></span>
         <span id="run-tests-text">Запуск тестов</span>
       </button>
-
-      <button id="upload-test" class="upload-btn">Загрузить тест</button>
-      <button id="open-template-editor" class="editor-btn">Редактор шаблона</button>
-      <input type="file" id="image-upload-input" accept="image/*" style="display: none" />
     </div>
 
     <div id="test-gallery" class="test-gallery">
@@ -533,6 +542,51 @@
 
     <div id="test-results" class="test-results">
       Загрузка...
+    </div>
+
+    <div id="test-tools" class="test-tools">
+      <button id="randomize">
+        <span class="svg-icon-16x16">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+          </svg>
+        </span>
+        Рандом
+      </button>
+      <button id="screenshot">
+        <span class="svg-icon-16x16">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+          </svg>
+        </span>
+        Скриншот поля</button>
+      <button id="open-template-editor" class="editor-btn">
+        <span class="svg-icon-16x16">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+          </svg>
+        </span>
+        Редактор шаблона
+      </button>
+      <button id="upload-test" class="upload-btn">
+        <span class="svg-icon-16x16">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+          </svg>
+        </span>
+        Загрузить тест
+      </button>
+      <input type="file" id="image-upload-input" accept="image/*" style="display: none" />
     </div>
 
     <div class="root-container">
