@@ -1043,6 +1043,7 @@
               <img id="${newTestCase.id}" src="${newTestCase.etalonImageSrc}" alt="${newTestCase.name}">
               <span>${newTestCase.name}</span>
               <img id="diff-${newTestCase.id}" class="diff-image" alt="Diff" style="display: none;">
+              <img id="mask-${newTestCase.id}" class="mask-image" alt="Mask" style="display: none;" src="">
               </div>
           `;
         testGallery.insertAdjacentHTML("beforeend", newImageHTML);
