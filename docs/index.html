@@ -229,6 +229,15 @@
       border-color: #28a745;
     }
 
+    .test-gallery .test-case-container img.test-selected {
+      border-color: blue;
+    }
+
+    .test-case-container img.test-selected+span {
+        background-color: blue;
+        color: white;
+    }
+
     img.test-pass+span {
       background-color: #28a745;
       color: white;
@@ -823,7 +832,7 @@
 
         if (!imgElement || !diffImgElement || !maskImgElement) continue;
 
-        imgElement.classList.remove("test-pass", "test-fail");
+        imgElement.classList.remove("test-pass", "test-fail", "test-selected");
         imgElement.classList.add("test-pending");
         diffImgElement.style.display = "none";
         diffImgElement.src = "";
@@ -1075,6 +1084,39 @@
         link.href = canvas.toDataURL("image/png");
         link.click();
       });
+    });
+
+    function loadImageTestToField(imageDataUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = async function () {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          canvas.width = img.width; canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          const parsedCoords = parseImageForCoords(
+            ctx, canvas.width, canvas.height
+          );
+          if (!parsedCoords) return;
+          document.documentElement.style.setProperty("--cell-size", "50px");
+          sizeSlider.value = 50;
+          clearAllCheckboxes();
+          parsedCoords.forEach(([col, row]) =>
+            setCheckboxState(col, row, true)
+          );
+          updateAllTiles();
+          resolve();
+        };
+        img.src = imageDataUrl;
+      });
+    }
+
+    testGallery.addEventListener('click', async (e) => {
+      if (!isTestRunning && e.target.matches('img:first-of-type')) {
+        Array.from(testGallery.querySelectorAll('.test-selected')).forEach((el) => el.classList.remove('test-selected'));
+        e.target.classList.add('test-selected');
+        await loadImageTestToField(e.target.src);
+      }
     });
 
     function clearField() {
